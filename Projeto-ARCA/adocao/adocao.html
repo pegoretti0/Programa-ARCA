@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoção - ARCA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+
+        body { background: #f0f2f5; color: #343434; }
+
+        .container { display: flex; flex-direction: column; min-height: 100vh; }
+
+        header {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #B9E0FF; padding: 0 32px; height: 64px;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header span { font-size: 21px; font-weight: 900; color: #1a2d52; letter-spacing: 4px; }
+        .header-sair {
+            font-size: 13px; color: #1a2d52; border: 1px solid rgba(26,45,82,0.3);
+            border-radius: 6px; padding: 6px 14px; background: transparent; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .header-sair:hover { background: #c0392b; border-color: #c0392b; color: #fff; }
+
+        .menu-lateral { display: flex; flex: 1; }
+
+        aside {
+            width: 220px; min-height: calc(100vh - 64px);
+            background: #D6EFE0; padding: 30px 0; flex-shrink: 0;
+        }
+        aside ul { list-style: none; display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
+        aside ul li { font-size: 14px; font-weight: 500; border-radius: 10px; transition: background 0.2s; }
+        aside ul li a { display: block; padding: 12px 16px; color: #1a3a28; text-decoration: none; transition: padding-left 0.2s; }
+        aside ul li:hover, aside ul li.ativo { background: #FDCFA7; }
+        aside ul li:hover a, aside ul li.ativo a { color: #7a3a00; padding-left: 22px; }
+
+        .conteudo-principal { flex: 1; padding: 36px 40px; }
+
+        .topo-adocao {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .topo-adocao h1 { color: #1a2d52; font-size: 22px; font-weight: 900; }
+
+        /* FILTROS */
+        .filtros-card {
+            background: #fff; border-radius: 16px; padding: 20px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07); margin-bottom: 28px;
+            display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+        }
+        .filtro-titulo { font-size: 13px; font-weight: 700; color: #1a2d52; }
+
+        .filtro-grupo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+        .filtro-chip {
+            display: flex; align-items: center; gap: 6px;
+            border: 2px solid #B9E0FF; border-radius: 20px;
+            padding: 6px 14px; font-size: 13px; font-weight: 600;
+            color: #1a2d52; cursor: pointer; transition: all 0.2s; background: #fff;
+            user-select: none;
+        }
+        .filtro-chip input { display: none; }
+        .filtro-chip:hover { border-color: #1a2d52; background: #f0f6ff; }
+        .filtro-chip.selecionado { border-color: #1a2d52; background: #1a2d52; color: #FDCFA7; }
+
+        .filtro-divider { width: 1px; height: 28px; background: #e0e0e0; }
+
+        .label-idade { font-size: 12px; color: #777; display: block; margin-bottom: 4px; }
+        .slider-wrap { display: flex; align-items: center; gap: 8px; }
+        .slider-wrap input[type=range] { width: 100px; accent-color: #1a2d52; }
+        .slider-val { font-size: 12px; font-weight: 700; color: #1a2d52; min-width: 28px; }
+
+        .btn-pesquisar {
+            background: #FDCFA7; border: none; border-radius: 20px;
+            padding: 8px 20px; font-size: 13px; font-weight: 700;
+            color: #7a3a00; cursor: pointer; transition: background 0.2s; margin-left: auto;
+        }
+        .btn-pesquisar:hover { background: #f5b87a; }
+
+        /* GRID DE ANIMAIS */
+        .animais-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .animal-card {
+            background: #fff; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none; color: inherit; display: block;
+        }
+        .animal-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.13); }
+
+        .animal-foto {
+            width: 100%; height: 180px; object-fit: cover; display: block;
+        }
+        .animal-foto-placeholder {
+            width: 100%; height: 180px; background: linear-gradient(135deg, #D6EFE0 0%, #B9E0FF 100%);
+            display: flex; align-items: center; justify-content: center; font-size: 48px;
+        }
+
+        .animal-info { padding: 14px 16px 16px; }
+        .animal-nome { font-size: 15px; font-weight: 800; color: #1a2d52; margin-bottom: 4px; }
+        .animal-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag {
+            font-size: 11px; font-weight: 600; padding: 3px 9px;
+            border-radius: 20px; background: #eef6ff; color: #1a2d52;
+        }
+        .tag.filhote { background: #D6EFE0; color: #1a3a28; }
+        .tag.femea { background: #fce4ec; color: #880e4f; }
+        .tag.macho { background: #e3f2fd; color: #0d47a1; }
+
+        footer { background: #B9E0FF; height: 50px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <span>ARCA</span>
+        <button class="header-sair">Sair</button>
+    </header>
+
+    <div class="menu-lateral">
+        <aside>
+            <ul>
+                <li><a href="#">&#127968; Home</a></li>
+                <li><a href="#">&#8505; Sobre Nós</a></li>
+                <li class="ativo"><a href="adocao.html">&#10084; Adoção</a></li>
+                <li><a href="#">&#128197; Agendamentos</a></li>
+                <li><a href="emergencia.html">&#9888; Emergências</a></li>
+                <li><a href="#">&#11088; Eventos</a></li>
+                <li><a href="#">&#128196; Processos</a></li>
+                <li><a href="#">&#10067; Ajuda</a></li>
+                <li><a href="#">&#128100; Perfil</a></li>
+            </ul>
+        </aside>
+
+        <main class="conteudo-principal">
+            <div class="topo-adocao">
+                <h1>&#10084; Animais para Adoção</h1>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filtros-card">
+                <span class="filtro-titulo">Filtro</span>
+
+                <div class="filtro-grupo">
+                    <label class="filtro-chip" id="chip-cachorro" onclick="toggleChip(this)">
+                        🐶 Cachorro
+                    </label>
+                    <label class="filtro-chip" id="chip-gato" onclick="toggleChip(this)">
+                        🐱 Gato
+                    </label>
+                </div>
+
+                <div class="filtro-divider"></div>
+
+                <div class="filtro-grupo">
+                    <label class="filtro-chip" id="chip-femea" onclick="toggleChip(this)">
+                        ♀ Fêmea
+                    </label>
+                    <label class="filtro-chip" id="chip-macho" onclick="toggleChip(this)">
+                        ♂ Macho
+                    </label>
+                </div>
+
+                <div class="filtro-divider"></div>
+
+                <div class="filtro-grupo">
+                    <label class="filtro-chip" id="chip-filhote" onclick="toggleChip(this)">
+                        🍼 Filhote
+                    </label>
+                </div>
+
+                <div class="filtro-divider"></div>
+
+                <div>
+                    <span class="label-idade">Idade máx.</span>
+                    <div class="slider-wrap">
+                        <input type="range" min="0" max="15" value="1" id="slider-idade"
+                               oninput="document.getElementById('val-idade').textContent = this.value + ' ano' + (this.value==1?'':'s')">
+                        <span class="slider-val" id="val-idade">1 ano</span>
+                    </div>
+                </div>
+
+                <button class="btn-pesquisar">🔍 Pesquisar</button>
+            </div>
+
+            <!-- GRID -->
+            <div class="animais-grid">
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐶</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Cleiton</div>
+                        <div class="animal-tags">
+                            <span class="tag">Cachorro</span>
+                            <span class="tag macho">Macho</span>
+                            <span class="tag filhote">Filhote</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐱</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Mimi</div>
+                        <div class="animal-tags">
+                            <span class="tag">Gato</span>
+                            <span class="tag femea">Fêmea</span>
+                            <span class="tag filhote">Filhote</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐶</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Bob</div>
+                        <div class="animal-tags">
+                            <span class="tag">Cachorro</span>
+                            <span class="tag macho">Macho</span>
+                            <span class="tag">2 anos</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐱</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Lua</div>
+                        <div class="animal-tags">
+                            <span class="tag">Gato</span>
+                            <span class="tag femea">Fêmea</span>
+                            <span class="tag">3 anos</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐶</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Thor</div>
+                        <div class="animal-tags">
+                            <span class="tag">Cachorro</span>
+                            <span class="tag macho">Macho</span>
+                            <span class="tag">5 anos</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="animal-detalhe.html" class="animal-card">
+                    <div class="animal-foto-placeholder">🐱</div>
+                    <div class="animal-info">
+                        <div class="animal-nome">Mel</div>
+                        <div class="animal-tags">
+                            <span class="tag">Gato</span>
+                            <span class="tag femea">Fêmea</span>
+                            <span class="tag filhote">Filhote</span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </main>
+    </div>
+
+    <footer></footer>
+</div>
+
+<script>
+    function toggleChip(el) {
+        el.classList.toggle('selecionado');
+    }
+</script>
+</body>
+</html>
